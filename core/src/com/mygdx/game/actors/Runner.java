@@ -1,12 +1,15 @@
 package com.mygdx.game.actors;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.mygdx.game.Constants;
 import com.mygdx.game.box2d.RunnerUserData;
 import com.mygdx.game.box2d.UserData;
 
 public class Runner extends GameActor {
 
     private boolean jumping;
+
 
 
     public Runner(Body body) {
@@ -24,6 +27,17 @@ public class Runner extends GameActor {
             jumping = true;
         }
     }
+
+    public void move() {
+        if (body.getLinearVelocity().x > Constants.MAX_SPEED.x) {
+            body.setLinearVelocity(Constants.MAX_SPEED);
+            System.out.println("Mah speed is: " + body.getLinearVelocity().x);
+
+        }
+        body.applyLinearImpulse(getUserData().getRunningLinearImpulse(), body.getWorldCenter(), true);
+
+    }
+
 
     public void  landed(){
         jumping = false;

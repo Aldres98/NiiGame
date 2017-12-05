@@ -33,7 +33,7 @@ public class GameStage extends Stage implements ContactListener {
 
     TextButton buttonJump;
 
-    private final float TIME_STEP = 1 / 300f;
+    private final float TIME_STEP = 1 / 60f;
     private float accumulator = 0f;
 
     private Rectangle screenRightSide;
@@ -56,6 +56,7 @@ public class GameStage extends Stage implements ContactListener {
         world.setContactListener(this);
         setUpGround();
         setUpRunner();
+        setupTouchControlAreas();
     }
 
     private void setUpGround() {
@@ -88,7 +89,7 @@ public class GameStage extends Stage implements ContactListener {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         translateScreenToWorldCoordinates(screenX, screenY);
         if (rightSideTouched(touchPoint.x, touchPoint.y)) {
-            runner.jump();
+            runner.move();
         }
 
         return super.touchDown(screenX, screenY, pointer, button);

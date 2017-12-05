@@ -11,10 +11,12 @@ import com.mygdx.game.enums.UserDataType;
 public class RunnerUserData extends UserData {
 
     private Vector2 jumpingLinearImpulse;
+    private Vector2 runningLinearImpulse;
 
     public RunnerUserData(){
         super();
         jumpingLinearImpulse = Constants.RUNNER_JUMPING_LINEAR_IMPULSE;
+        runningLinearImpulse = Constants.RUNNER_RUNNING_LINEAR_IMPULSE;
         userDataType = UserDataType.RUNNER;
     }
 
@@ -24,5 +26,13 @@ public class RunnerUserData extends UserData {
 
     public void setJumpingLinearImpulse(Vector2 jumpingLinearImpulse) {
         this.jumpingLinearImpulse = jumpingLinearImpulse;
+    }
+
+    public Vector2 getRunningLinearImpulse() {
+        return runningLinearImpulse;
+    }
+
+    public void setRunningLinearImpulse(Vector2 runningLinearImpulse) {
+        this.runningLinearImpulse = runningLinearImpulse;
     }
 }
