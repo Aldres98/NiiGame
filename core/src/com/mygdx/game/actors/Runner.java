@@ -1,5 +1,6 @@
 package com.mygdx.game.actors;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
@@ -31,11 +32,9 @@ public class Runner extends GameActor {
     public void move() {
         if (body.getLinearVelocity().x > Constants.MAX_SPEED.x) {
             body.setLinearVelocity(Constants.MAX_SPEED);
-            System.out.println("Mah speed is: " + body.getLinearVelocity().x);
-
+            Gdx.app.log("Speed", "Runner speed is: " + body.getLinearVelocity().x);
         }
         body.applyLinearImpulse(getUserData().getRunningLinearImpulse(), body.getWorldCenter(), true);
-
     }
 
 
