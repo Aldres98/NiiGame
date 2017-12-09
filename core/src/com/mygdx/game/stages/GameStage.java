@@ -31,13 +31,10 @@ public class GameStage extends Stage implements ContactListener {
     private Ground ground;
     private Runner runner;
 
-    TextButton buttonJump;
-
     private final float TIME_STEP = 1 / 60f;
     private float accumulator = 0f;
 
     private Rectangle screenRightSide;
-
 
     private OrthographicCamera camera;
     private Box2DDebugRenderer renderer;
@@ -68,8 +65,6 @@ public class GameStage extends Stage implements ContactListener {
         runner = new Runner(WorldUtils.createRunner(world));
         addActor(runner);
     }
-
-
 
 
     private void setupCamera() {
