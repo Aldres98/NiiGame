@@ -29,7 +29,8 @@ public class Constants {
     public static float RUNNER_DENSITY = 0.5f;
     public static final Vector2 RUNNER_JUMPING_LINEAR_IMPULSE = new Vector2(0, 13f);
 
-    public static final Vector2 RUNNER_RUNNING_LINEAR_IMPULSE = new Vector2(2f, 0f);
+    public static final Vector2 RUNNER_RUNNING_LINEAR_IMPULSE = new Vector2(0.5f, 0f);
+    public static final Vector2 RUNNER_RUNNING_LEFT_LINEAR_IMPULSE = new Vector2(-0.5f, 0f);
     public static final Vector2 MAX_SPEED = new Vector2(4f, 0);
 
 

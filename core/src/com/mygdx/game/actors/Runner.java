@@ -29,12 +29,21 @@ public class Runner extends GameActor {
         }
     }
 
-    public void move() {
+    public void move(float knobPercentX, float knobPercentY) {
         if (body.getLinearVelocity().x > Constants.MAX_SPEED.x) {
             body.setLinearVelocity(Constants.MAX_SPEED);
             Gdx.app.log("Speed", "Runner speed is: " + body.getLinearVelocity().x);
         }
-        body.applyLinearImpulse(getUserData().getRunningLinearImpulse(), body.getWorldCenter(), true);
+
+        if (knobPercentX*100 < 0) {
+            body.applyLinearImpulse(getUserData().getRunningLeftLinearImpulse(), body.getWorldCenter(), true);
+        }
+        else {
+            body.applyLinearImpulse(getUserData().getRunningLinearImpulse(), body.getWorldCenter(), true);
+
+        }
+
+        System.out.println(knobPercentX);
     }
 
 

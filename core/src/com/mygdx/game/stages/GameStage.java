@@ -2,6 +2,7 @@ package com.mygdx.game.stages;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -13,7 +14,11 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mygdx.game.actors.Ground;
 import com.mygdx.game.actors.Runner;
 import com.mygdx.game.utils.BodyUtils;
@@ -41,6 +46,13 @@ public class GameStage extends Stage implements ContactListener {
 
     private Vector3 touchPoint;
 
+    private Touchpad touchpad;
+    private Touchpad.TouchpadStyle touchpadStyle;
+    private Skin touchpadSkin;
+    private Drawable touchBackground;
+    private Drawable touchKnob;
+
+
 
     public GameStage(){
         setUpWorld();
@@ -54,6 +66,7 @@ public class GameStage extends Stage implements ContactListener {
         setUpGround();
         setUpRunner();
         setupTouchControlAreas();
+        setUpTouchpad();
     }
 
     private void setUpGround() {
@@ -66,6 +79,29 @@ public class GameStage extends Stage implements ContactListener {
         addActor(runner);
     }
 
+    private void setUpTouchpad(){
+        touchpadSkin = new Skin();
+        touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
+        touchpadSkin.add("touchKnob", new Texture("touchKnob.png"));
+        touchpadStyle = new Touchpad.TouchpadStyle();
+        touchBackground = touchpadSkin.getDrawable("touchBackground");
+        touchKnob = touchpadSkin.getDrawable("touchKnob");
+        touchpadStyle.background = touchBackground;
+        touchpadStyle.knob = touchKnob;
+        touchpad = new Touchpad(10, touchpadStyle);
+        touchpad.setBounds(Gdx.graphics.getWidth()-150, Gdx.graphics.getHeight()/2-150, 150, 150);
+        addActor(touchpad);
+
+        touchpad.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (touchpad.isTouched()) {
+                    runner.move(touchpad.getKnobPercentX(), touchpad.getKnobPercentY());
+                }
+            }
+        });
+    }
+
 
     private void setupCamera() {
         camera = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -74,22 +110,24 @@ public class GameStage extends Stage implements ContactListener {
     }
 
     private void setupTouchControlAreas() {
-        touchPoint = new Vector3();
-        screenRightSide = new Rectangle(getCamera().viewportWidth / 2, 0, getCamera().viewportWidth / 2,
-                getCamera().viewportHeight);
+//        touchPoint = new Vector3();
+//        screenRightSide = new Rectangle(getCamera().viewportWidth / 2, 0, getCamera().viewportWidth / 2,
+//                getCamera().viewportHeight);
         Gdx.input.setInputProcessor(this);
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        translateScreenToWorldCoordinates(screenX, screenY);
-        if (rightSideTouched(touchPoint.x, touchPoint.y)) {
-            runner.move();
-        }
+// Old touch controls
+//    @Override
+//    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//        translateScreenToWorldCoordinates(screenX, screenY);
+//        if (rightSideTouched(touchPoint.x, touchPoint.y)) {
+//            runner.move();
+//        }
+//
+//        return super.touchDown(screenX, screenY, pointer, button);
+//
+//    }
 
-        return super.touchDown(screenX, screenY, pointer, button);
-
-    }
 
     private boolean rightSideTouched(float x, float y) {
         return screenRightSide.contains(x, y);
