@@ -19,7 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.mygdx.game.Constants;
 import com.mygdx.game.actors.Ground;
+import com.mygdx.game.actors.Obstacle;
 import com.mygdx.game.actors.Runner;
 import com.mygdx.game.utils.BodyUtils;
 import com.mygdx.game.utils.WorldUtils;
@@ -64,6 +66,7 @@ public class GameStage extends Stage implements ContactListener {
         world = WorldUtils.createWorld();
         world.setContactListener(this);
         setUpGround();
+        setUpObstacle();
         setUpRunner();
         setupTouchControlAreas();
         setUpTouchpad();
@@ -77,6 +80,12 @@ public class GameStage extends Stage implements ContactListener {
     private void setUpRunner(){
         runner = new Runner(WorldUtils.createRunner(world));
         addActor(runner);
+    }
+
+    private void setUpObstacle(){
+        Obstacle obstacle = new Obstacle(WorldUtils.createObstacle(world, 1f, 1.5f, 5f, Constants.GROUND_HEIGHT + Constants.GROUND_Y));
+        addActor(obstacle);
+
     }
 
     private void setUpTouchpad(){
@@ -95,8 +104,11 @@ public class GameStage extends Stage implements ContactListener {
         touchpad.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (touchpad.isTouched()) {
+                if (touchpad.isTouched() && !runner.isJumping()) {
                     runner.move(touchpad.getKnobPercentX(), touchpad.getKnobPercentY());
+                    if (touchpad.getKnobPercentY() > 0.5 && !runner.isJumping()){
+                        runner.jump();
+                    }
                 }
             }
         });
@@ -162,8 +174,9 @@ public class GameStage extends Stage implements ContactListener {
         Body a = contact.getFixtureA().getBody();
         Body b = contact.getFixtureB().getBody();
 
+
         if ((BodyUtils.bodyIsRunner(a) && BodyUtils.bodyIsGround(b)) ||
-                (BodyUtils.bodyIsGround(a) && BodyUtils.bodyIsRunner(b))) {
+                (BodyUtils.bodyIsGround(a) && BodyUtils.bodyIsRunner(b) || (BodyUtils.bodyIsRunner(a) && BodyUtils.bodyIsObstacle(b)) || BodyUtils.bodyIsRunner(b) && BodyUtils.bodyIsObstacle(a))) {
             runner.landed();
         }
 

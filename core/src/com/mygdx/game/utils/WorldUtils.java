@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.Constants;
 import com.mygdx.game.box2d.GroundUserData;
+import com.mygdx.game.box2d.ObstacleUserData;
 import com.mygdx.game.box2d.RunnerUserData;
 
 /**
@@ -44,5 +45,17 @@ public class WorldUtils {
         shape.dispose();
         return body;
 
+    }
+
+    public static Body createObstacle(World world, float sizeX, float sizeY, float positionX, float positionY){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(new Vector2(positionX, positionY));
+        Body body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(sizeX, sizeY);
+        body.createFixture(shape, Constants.GROUND_DENSITY);
+        body.setUserData(new ObstacleUserData());
+        shape.dispose();
+        return body;
     }
 }

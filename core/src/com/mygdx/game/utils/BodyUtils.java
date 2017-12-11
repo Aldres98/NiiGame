@@ -14,6 +14,11 @@ public class BodyUtils {
 
         return userData != null && userData.getUserDataType() == UserDataType.RUNNER;
     }
+    public static boolean bodyIsObstacle(Body body){
+        UserData userData = (UserData) body.getUserData();
+
+        return userData != null && userData.getUserDataType() == UserDataType.OBSTACLE;
+    }
 
     public static boolean bodyIsGround(Body body) {
         UserData userData = (UserData) body.getUserData();

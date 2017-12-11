@@ -46,8 +46,11 @@ public class Runner extends GameActor {
         System.out.println(knobPercentX);
     }
 
+    public boolean isJumping(){
+        return jumping;
+    }
 
-    public void  landed(){
+    public void landed(){
         jumping = false;
     }
 }
