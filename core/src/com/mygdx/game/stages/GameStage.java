@@ -3,6 +3,7 @@ package com.mygdx.game.stages;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -13,16 +14,20 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.Constants;
 import com.mygdx.game.actors.Ground;
 import com.mygdx.game.actors.Obstacle;
 import com.mygdx.game.actors.Runner;
+import com.mygdx.game.contols.DoubleTapDetector;
 import com.mygdx.game.utils.BodyUtils;
 import com.mygdx.game.utils.WorldUtils;
 
@@ -41,22 +46,21 @@ public class GameStage extends Stage implements ContactListener {
     private final float TIME_STEP = 1 / 60f;
     private float accumulator = 0f;
 
-    private Rectangle screenRightSide;
-
     private OrthographicCamera camera;
     private Box2DDebugRenderer renderer;
-
-    private Vector3 touchPoint;
 
     private Touchpad touchpad;
     private Touchpad.TouchpadStyle touchpadStyle;
     private Skin touchpadSkin;
     private Drawable touchBackground;
     private Drawable touchKnob;
+    ClickListener listener;
 
 
 
-    public GameStage(){
+
+
+    public GameStage() {
         setUpWorld();
         renderer = new Box2DDebugRenderer();
         setupCamera();
@@ -70,25 +74,42 @@ public class GameStage extends Stage implements ContactListener {
         setUpRunner();
         setupTouchControlAreas();
         setUpTouchpad();
-    }
+
+        listener = new ClickListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("Tap count is:  " + getTapCount());
+                if (listener.getTapCount() == 2){
+                    runner.jump();
+                    listener.setTapCount(0);
+                }
+                return super.touchDown(event, x, y, pointer, button);
+            }
+
+        };
+
+        addListener(listener);
+
+        }
+
 
     private void setUpGround() {
         ground = new Ground(WorldUtils.createGround(world));
         addActor(ground);
     }
 
-    private void setUpRunner(){
+    private void setUpRunner() {
         runner = new Runner(WorldUtils.createRunner(world));
         addActor(runner);
     }
 
-    private void setUpObstacle(){
+    private void setUpObstacle() {
         Obstacle obstacle = new Obstacle(WorldUtils.createObstacle(world, 1f, 1.5f, 5f, Constants.GROUND_HEIGHT + Constants.GROUND_Y));
         addActor(obstacle);
 
     }
 
-    private void setUpTouchpad(){
+    private void setUpTouchpad() {
         touchpadSkin = new Skin();
         touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
         touchpadSkin.add("touchKnob", new Texture("touchKnob.png"));
@@ -98,7 +119,7 @@ public class GameStage extends Stage implements ContactListener {
         touchpadStyle.background = touchBackground;
         touchpadStyle.knob = touchKnob;
         touchpad = new Touchpad(10, touchpadStyle);
-        touchpad.setBounds(Gdx.graphics.getWidth()-150, Gdx.graphics.getHeight()/2-150, 150, 150);
+        touchpad.setBounds(Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() / 2 - 150, 150, 150);
         addActor(touchpad);
 
         touchpad.addListener(new ChangeListener() {
@@ -106,9 +127,6 @@ public class GameStage extends Stage implements ContactListener {
             public void changed(ChangeEvent event, Actor actor) {
                 if (touchpad.isTouched() && !runner.isJumping()) {
                     runner.move(touchpad.getKnobPercentX(), touchpad.getKnobPercentY());
-                    if (touchpad.getKnobPercentY() > 0.5 && !runner.isJumping()){
-                        runner.jump();
-                    }
                 }
             }
         });
@@ -128,27 +146,28 @@ public class GameStage extends Stage implements ContactListener {
         Gdx.input.setInputProcessor(this);
     }
 
-// Old touch controls
+
+    //Old touch controls
 //    @Override
 //    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//        translateScreenToWorldCoordinates(screenX, screenY);
-//        if (rightSideTouched(touchPoint.x, touchPoint.y)) {
-//            runner.move();
+//        lastTouchTime = TimeUtils.nanoTime();
+//        if (lastUpTime - lastTouchTime <= 100){
+//            runner.jump();
 //        }
-//
+//        System.out.println("Last upTime: " + lastUpTime + ", last touch time: " + lastTouchTime);
 //        return super.touchDown(screenX, screenY, pointer, button);
 //
 //    }
 
-
-    private boolean rightSideTouched(float x, float y) {
-        return screenRightSide.contains(x, y);
-    }
-
-
-    private void translateScreenToWorldCoordinates(int x, int y) {
-        getCamera().unproject(touchPoint.set(x, y, 0));
-    }
+//
+//    private boolean rightSideTouched(float x, float y) {
+//        return screenRightSide.contains(x, y);
+//    }
+//
+//
+//    private void translateScreenToWorldCoordinates(int x, int y) {
+//        getCamera().unproject(touchPoint.set(x, y, 0));
+//    }
 
 
     @Override
@@ -157,8 +176,8 @@ public class GameStage extends Stage implements ContactListener {
 
         accumulator += delta;
 
-        while (accumulator >= delta){
-            world.step(TIME_STEP, 6 ,2 );
+        while (accumulator >= delta) {
+            world.step(TIME_STEP, 6, 2);
             accumulator -= TIME_STEP;
         }
     }
